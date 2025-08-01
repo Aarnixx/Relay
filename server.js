@@ -2,8 +2,9 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const server = http.createServer(app);
+
 const WebSocket = require("ws");
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ server }); // ← CORRECT: shares port with HTTP server
 
 let host = null;
 let clients = [];
@@ -26,7 +27,7 @@ wss.on("connection", (ws) => {
           host.send(JSON.stringify(data.payload));
       }
     } catch (e) {
-      console.error("Invalid message:", msg);
+      console.error("Error handling message:", e.message);
     }
   });
 
@@ -36,6 +37,7 @@ wss.on("connection", (ws) => {
   });
 });
 
-app.get("/", (req, res) => res.send("Relay running."));
+app.get("/", (_req, res) => res.send("Relay server is running."));
+
 const PORT = process.env.PORT || 10000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
