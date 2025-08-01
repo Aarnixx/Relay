@@ -1,10 +1,14 @@
+const express = require("express");
+const app = express();
+const http = require("http");
+const server = http.createServer(app);
 const WebSocket = require("ws");
-const wss = new WebSocket.Server({ port: process.env.PORT || 10000 });
+const wss = new WebSocket.Server({ server });
 
 let host = null;
 let clients = [];
 
-wss.on("connection", (ws, req) => {
+wss.on("connection", (ws) => {
   ws.on("message", (msg) => {
     try {
       const data = JSON.parse(msg);
@@ -22,7 +26,7 @@ wss.on("connection", (ws, req) => {
           host.send(JSON.stringify(data.payload));
       }
     } catch (e) {
-      console.error("Invalid message", msg);
+      console.error("Invalid message:", msg);
     }
   });
 
@@ -32,4 +36,6 @@ wss.on("connection", (ws, req) => {
   });
 });
 
-console.log("Relay server running...");
+app.get("/", (req, res) => res.send("Relay running."));
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
